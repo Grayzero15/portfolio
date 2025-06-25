@@ -8,15 +8,42 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || 
-             (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
-    return false;
-  });
+  const [isDark, setIsDark] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  // Initialize theme on client side only
   useEffect(() => {
+    const initializeTheme = () => {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      let shouldBeDark = false;
+      
+      if (savedTheme) {
+        shouldBeDark = savedTheme === 'dark';
+      } else {
+        shouldBeDark = prefersDark;
+      }
+      
+      setIsDark(shouldBeDark);
+      setIsInitialized(true);
+      
+      // Apply theme immediately
+      const root = window.document.documentElement;
+      if (shouldBeDark) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    };
+
+    initializeTheme();
+  }, []);
+
+  // Update DOM and localStorage when theme changes
+  useEffect(() => {
+    if (!isInitialized) return;
+    
     const root = window.document.documentElement;
     if (isDark) {
       root.classList.add('dark');
@@ -25,7 +52,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
-  }, [isDark]);
+  }, [isDark, isInitialized]);
 
   const toggleTheme = () => {
     setIsDark(!isDark);

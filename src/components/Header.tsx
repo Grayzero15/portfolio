@@ -64,8 +64,9 @@ const Header: React.FC = () => {
 
             {/* Mobile menu button */}
             <div className="md:hidden">
-              <button
+             <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Open main menu" // Add this line
                 className="p-2 rounded-lg bg-gray-200/50 dark:bg-gray-700/50 hover:bg-gray-300/50 dark:hover:bg-gray-600/50 transition-colors duration-200"
               >
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -96,4 +97,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;  
+export default Header;
